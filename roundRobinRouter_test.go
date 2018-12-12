@@ -1,11 +1,12 @@
 package solr_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-	"github.com/sendgrid/go-solr"
 	"net/http"
 	"time"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"github.com/sajandrews/go-solr"
 )
 
 var _ = Describe("Round Robin Router", func() {

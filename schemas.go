@@ -30,6 +30,7 @@ type SolrLocator interface {
 
 type SolrHTTP interface {
 	Select(nodeUris []string, opts ...func(url.Values)) (SolrResponse, error)
+	SelectGroup(nodeUris []string, opts ...func(url.Values)) (SolrGroupResponse, error)
 	Update(nodeUris []string, singleDoc bool, doc interface{}, opts ...func(url.Values)) error
 	Logger() Logger
 }

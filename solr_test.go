@@ -9,7 +9,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/sendgrid/go-solr"
+	"github.com/sajandrews/go-solr"
 )
 
 func newUUID() (string, error) {

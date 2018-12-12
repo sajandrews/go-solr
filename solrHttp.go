@@ -144,6 +144,62 @@ func (s *solrHttp) Update(nodeUris []string, singleDoc bool, doc interface{}, op
 	return nil
 }
 
+func (s *solrHttp) SelectGroup(nodeUris []string, opts ...func(url.Values)) (SolrGroupResponse, error) {
+	if len(nodeUris) == 0 {
+		return SolrGroupResponse{}, fmt.Errorf("[SolrHTTP] nodeuris: empty node uris is not valid")
+	}
+
+	nodeUri := s.router.GetUriFromList(nodeUris)
+	var err error
+	urlValues := url.Values{
+		"wt": {"json"},
+	}
+	for _, opt := range opts {
+		opt(urlValues)
+	}
+
+	var sgr SolrGroupResponse
+	u := fmt.Sprintf("%s/%s/select", nodeUri, s.collection)
+	body := bytes.NewBufferString(urlValues.Encode())
+	req, err := http.NewRequest("POST", u, body)
+	if err != nil {
+		return sgr, err
+	}
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	basicCred := s.getBasicCredential(s.user, s.password)
+	if basicCred != "" {
+		req.Header.Add("Authorization", fmt.Sprintf("Basic %s", basicCred))
+	}
+	start := time.Now()
+	resp, err := s.queryClient.Do(req)
+	if resp != nil {
+		s.router.AddSearchResult(time.Since(start), nodeUri, resp.StatusCode, err)
+	} else if resp == nil {
+		s.router.AddSearchResult(time.Since(start), nodeUri, http.StatusInternalServerError, err)
+	}
+	if err != nil {
+		return sgr, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == http.StatusNotFound {
+		sgr.Status = 404
+		return sgr, ErrNotFound
+	}
+	if resp.StatusCode >= 400 {
+		htmlData, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return sgr, err
+		}
+		sgr.Status = resp.StatusCode
+		return sgr, NewSolrError(resp.StatusCode, string(htmlData))
+	}
+
+	dec := json.NewDecoder(resp.Body)
+
+	return sgr, dec.Decode(&sgr)
+}
+
 func (s *solrHttp) Select(nodeUris []string, opts ...func(url.Values)) (SolrResponse, error) {
 	if len(nodeUris) == 0 {
 		return SolrResponse{}, fmt.Errorf("[SolrHTTP] nodeuris: empty node uris is not valid")

@@ -2,9 +2,10 @@ package solr_test
 
 import (
 	"errors"
-	"github.com/sendgrid/go-solr"
 	"net/http"
 	"time"
+
+	"github.com/sajandrews/go-solr"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
