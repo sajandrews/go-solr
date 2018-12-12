@@ -159,7 +159,9 @@ func (s *solrHttp) SelectGroup(nodeUris []string, opts ...func(url.Values)) (Sol
 	}
 
 	var sgr SolrGroupResponse
+
 	u := fmt.Sprintf("%s/%s/select", nodeUri, s.collection)
+
 	body := bytes.NewBufferString(urlValues.Encode())
 	req, err := http.NewRequest("POST", u, body)
 	if err != nil {
