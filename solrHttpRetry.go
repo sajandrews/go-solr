@@ -25,9 +25,12 @@ func (s *SolrHttpRetrier) Select(nodeUris []string, opts ...func(url.Values)) (S
 		return SolrResponse{}, errors.New("[Solr HTTP Retrier]Length of nodes in solr is empty")
 	}
 	now := time.Now()
+
 	var resp SolrResponse
 	var err error
+
 	backoff := s.exponentialBackoff
+
 	for attempt := 0; attempt < s.retries; attempt++ {
 		resp, err = s.solrCli.Select(nodeUris, opts...)
 		if err == ErrNotFound {
